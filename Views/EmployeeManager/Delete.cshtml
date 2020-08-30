@@ -1,0 +1,160 @@
+﻿<script>
+    $(document).ready(function () {
+        if (!sessionStorage.hasOwnProperty("token")) {
+            window.location.href = "/EmployeeManager/SignIn";
+
+        }
+
+        var options = {};
+        options.url = "/api/employees/" + $("#employeeID").val();
+        options.type = "GET";
+        options.dataType = "json";
+        options.beforeSend = function (request) {
+            request.setRequestHeader("Authorization", "Bearer" + sessionStorage.getItem("token"));
+            $("h3.message").html("wait...");
+
+        };
+
+        options.success = function (data) {
+
+            $("#firstName").html(data.firstName);
+            $("#lastName").html(data.lastName);
+            $("#title").html(data.title);
+            $("#birthDate").html(data.birthDate.substring(0, 10));
+            $("#hireDate").html(data.hireDate.substring(0, 10));
+            $("#country").html(data.country);
+            $("#notes").html(data.notes);
+            $("h3.message").html("");
+
+        };
+
+        options.error = function (xhr) {
+
+            if (xhr.status == 401) {
+
+                window.location.href = "/EmployeeManager/SignIn";
+
+            }
+
+            $("h3.message").html("Error while calling  the Api !");
+        };
+
+        $.ajax(options);
+
+
+        $("#delete").click(function () {
+            var options = {};
+
+            options.url = "/api/employees/" + $("#employeeID").val();
+            options.type = "DELETE";
+            options.contentype = "application/json";
+            options.beforeSend = function (request) {
+                request.setRequestHeader("Authorization", "Bearer" + sessionStorage.getItem("token"));
+                $("h3.message").html("wait...");
+            };
+
+            options.success = function () {
+
+                sessionStorage.setItem("message", "Employee deleted successfully !");
+                window.location.href = "/EmployeeManager/List";
+            };
+
+            options.error = function (xhr) {
+
+                if (xhr.status == 401) {
+
+                    window.location.href = "/EmployeeManager/SignIn";
+                }
+
+                $("h3.message").html("error while calling the Api !");
+            };
+
+            $.ajax(options);
+
+        });
+    });
+
+
+</script>
+
+
+
+<h2>Deleting Existing Records</h2>
+<h3 class="message">
+Warning: you are about to delete the record.
+</h3>
+<form id="deleteform">
+    <table border="0">
+        <tr>
+            <td class="right">
+                EmployeeId:
+
+            </td>
+
+            <td>
+                <span>@ViewBag.EmployeeID</span>
+                <input type="hidden" id="employeeID" name="employeeID" value="@ViewBag.EmployeeID" />
+
+            </td>
+        </tr>
+
+        <tr>
+            <td class="right">
+                First Name:
+
+            </td>
+            <td>
+                <span id="firstName"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="right">Last Name:</td>
+            <td><span id="lastName"></span></td>
+        </tr>
+
+
+        <tr>
+            <td class="right">Title:</td>
+            <td><span id="title"></span></td>
+        </tr>
+
+
+        <tr>
+            <td class="right">Birth Date:</td>
+           <td> <span id="birthDate"></span>
+        </tr>
+
+
+        <tr>
+            <td class="right">Hire Date:</td>
+            <td><span id="hireDate"></span></td>
+        </tr>
+
+
+        <tr>
+            <td class="right">Country:</td>
+            <td><span id="country"></span></td>
+        </tr>
+
+
+        <tr>
+            <td class="right">Notes:</td>
+            <td><span id="notes"></span></td>
+        </tr>
+
+
+        <tr>
+            <td colspan="2">
+                <button type="button" id="delete">Delete</button>
+            </td>
+            
+        </tr>
+    </table>
+
+</form>
+
+<br /><br />
+@*<a asp-controller="EmployeeManager" asp-action="List">Back to Employee Listing</a>*@
+
+<a href="/EmployeeManager/List">Back to Employee List</a>
